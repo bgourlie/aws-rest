@@ -1,0 +1,5 @@
+name: aws_rest
+description: A library for interacting with AWS using their REST api.
+dependencies:
+  crypto: any
+  intl: any
