@@ -1,6 +1,6 @@
 part of aws_rest;
 
-class Content {
+class Content implements S3Object {
   final String key;
   final DateTime lastModified;
   final String etag;

@@ -16,12 +16,17 @@ class AwsClient {
 
   Future<HttpClientResponse> sendRequest(String method, String host, String path, RequestPayload payload) {
     final completer = new Completer<HttpClientRequest>();
+    final separator = path.startsWith('/') ? '' : '/';
+    _logger.finest('Making ${method.toUpperCase()} request to $host$separator$path');
     this._httpClient.open(method, host, 80, path).then((HttpClientRequest req) {
       this._signer.signRequest(req, payload);
       if (!payload.isEmpty) {
         req.add(payload.bytes);
       }
-      req.close().then((HttpClientResponse resp) => completer.complete(resp));
+      req.close().then((HttpClientResponse resp) {
+        _logger.finest('Received response: ${resp.reasonPhrase}');
+        completer.complete(resp);
+      });
     });
 
     return completer.future;
