@@ -7,12 +7,11 @@ class RequestSigner {
   RequestSigner(this._credentials, this._scope);
 
   void signRequest(HttpClientRequest req, RequestPayload payload) {
-    req.headers.remove('transfer-encoding', 'chunked'); // aws doesn't support this header, dart seems to add it by default
-
-    if (payload != null) {
+    req.headers.remove('transfer-encoding', 'chunked'); // aws doesn't support this header when precomputing payload hash, dart seems to add it by default
+    req.headers.add('x-amz-content-sha256', payload.hash);
+    if (!payload.isEmpty) {
       req.headers.contentType = payload.contentType;
-      req.headers.contentLength = payload != null ? payload.bytes.length : 0;
-      req.headers.add('x-amz-content-sha256', payload.hash);
+      req.headers.contentLength = payload.bytes.length;
     }
 
     final reqDate = new DateTime.now().toUtc();
