@@ -12,5 +12,5 @@ part 'src/aws_scope.dart';
 part 'src/aws_credentials.dart';
 part 'src/aws_client.dart';
 
-final scopeDateFormatter = new DateFormat('yyyyMMdd');
-final httpDateFormatter = new DateFormat("EEE, dd MMM y HH:mm:ss 'GMT'");
+final _scopeDateFormatter = new DateFormat('yyyyMMdd');
+final _httpDateFormatter = new DateFormat("EEE, dd MMM y HH:mm:ss 'GMT'");

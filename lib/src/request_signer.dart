@@ -60,13 +60,13 @@ class RequestSigner {
   }
 
   static String _generateStringToSign(String canonicalRequest, String scope, DateTime reqDate) {
-    final iso8601Date = httpDateFormatter.format(reqDate);
+    final iso8601Date = _httpDateFormatter.format(reqDate);
     final hashedRequest = _getStringHash(canonicalRequest);
     return 'AWS4-HMAC-SHA256\n$iso8601Date\n$scope\n$hashedRequest';
   }
 
   List<int> _generateSigningKey() {
-    final dateKey = _generateHmac256Hash(UTF8.encode('AWS4${this._credentials.secretAccessKey}'), scopeDateFormatter.format(new DateTime.now().toUtc()));
+    final dateKey = _generateHmac256Hash(UTF8.encode('AWS4${this._credentials.secretAccessKey}'), _scopeDateFormatter.format(new DateTime.now().toUtc()));
     final dateRegionKey = _generateHmac256Hash(dateKey, this._scope._region);
     final dateRegionServiceKey = _generateHmac256Hash(dateRegionKey, this._scope._service);
     final signingKey = _generateHmac256Hash(dateRegionServiceKey, "aws4_request");

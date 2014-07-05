@@ -7,6 +7,6 @@ class AwsScope {
   AwsScope(this._region, this._service);
 
   String generateScopeString(HttpClientRequest req) {
-    return '${scopeDateFormatter.format(req.headers.date)}/$_region/$_service/aws4_request';
+    return '${_scopeDateFormatter.format(req.headers.date)}/$_region/$_service/aws4_request';
   }
 }
