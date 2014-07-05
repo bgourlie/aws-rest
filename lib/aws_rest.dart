@@ -6,6 +6,7 @@ import 'dart:async';
 import 'package:xml/xml.dart' as xml;
 import 'package:intl/intl.dart';
 import 'package:crypto/crypto.dart';
+import 'package:logging/logging.dart';
 
 part 'src/request_payload.dart';
 part 'src/request_signer.dart';
@@ -18,3 +19,4 @@ part 'src/models/owner.dart';
 
 final _scopeDateFormatter = new DateFormat('yyyyMMdd');
 final _httpDateFormatter = new DateFormat("EEE, dd MMM y HH:mm:ss 'GMT'");
+final _logger = new Logger('aws_rest');

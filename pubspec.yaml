@@ -4,3 +4,4 @@ dependencies:
   crypto: any
   intl: any
   xml: any
+  logging: any
