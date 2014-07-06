@@ -8,7 +8,7 @@ class AwsClient {
 
   Future<HttpClientResponse> put(Uri uri, RequestPayload payload) => this.sendRequest('put', uri, payload);
 
-  Future<HttpClientResponse> get(Uri uri ) => this.sendRequest('get', uri, new RequestPayload.empty());
+  Future<HttpClientResponse> get(Uri uri) => this.sendRequest('get', uri, new RequestPayload.empty());
 
   Future<HttpClientResponse> post(Uri uri, RequestPayload payload) => this.sendRequest('post', uri, payload);
 

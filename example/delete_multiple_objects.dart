@@ -13,7 +13,8 @@ import 'settings.dart' as settings;
 // RUNNING THIS SCRIPT WILL DELETE ALL OBJECTS (up to 1000) IN YOUR BUCKET. DO NOT ACTUALLY RUN THIS SCRIPT IF YOU
 // DON'T WANT TO DELETE ALL YOUR OBJECTS.
 // !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-void main(){
+
+void main() {
   // Delete an object
   Logger.root.level = Level.FINE;
   Logger.root.onRecord.listen((LogRecord r) => print('[${r.loggerName}] ${r.message}'));
@@ -24,8 +25,8 @@ void main(){
   final awsClient = new AwsClient(signer);
   final bucketApi = new S3BucketApi(settings.S3_BUCKET, awsClient);
 
-  bucketApi.listBucket().then((ListBucketResult res){
-    bucketApi.deleteObjects(res.contents).then((DeleteResults delResults){
+  bucketApi.listBucket().then((ListBucketResult res) {
+    bucketApi.deleteObjects(res.contents).then((DeleteResults delResults) {
       logger.fine('delete bucket complete');
     });
   });

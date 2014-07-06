@@ -40,7 +40,7 @@ class RequestSigner {
 
     // CanonicalQueryString specifies the URI-encoded query string parameters. You URI-encode name and values individually. You must also sort the parameters in the canonical query string alphabetically by key name. The sorting occurs after encoding. For example, in the URI
     final queryStringParams = new List<String>();
-    req.uri.queryParameters.forEach((String key, String value){
+    req.uri.queryParameters.forEach((String key, String value) {
       queryStringParams.add('${Uri.encodeQueryComponent(key)}=${Uri.encodeQueryComponent(value)}');
     });
 

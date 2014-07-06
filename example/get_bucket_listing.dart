@@ -4,7 +4,7 @@ import 'package:aws_rest/aws_rest.dart';
 import 'package:logging/logging.dart';
 import 'settings.dart' as settings;
 
-void main(){
+void main() {
   // List objects
   Logger.root.level = Level.FINEST;
   Logger.root.onRecord.listen((LogRecord r) => print('[${r.loggerName}] ${r.message}'));

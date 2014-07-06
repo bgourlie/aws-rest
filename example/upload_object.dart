@@ -14,9 +14,7 @@ void main() {
   final awsClient = new AwsClient(signer);
   final bucketApi = new S3BucketApi(settings.S3_BUCKET, awsClient);
 
-  bucketApi.uploadObjectBytes('hello-from-bucket-api2.html',
-      UTF8.encode("<html><head></head><body><h1>hello from aws_rest2!</h1></body></html>"),
-      new ContentType('text', 'html', charset: "utf-8")).then((_) {
+  bucketApi.uploadObjectBytes('hello-from-bucket-api2.html', UTF8.encode("<html><head></head><body><h1>hello from aws_rest2!</h1></body></html>"), new ContentType('text', 'html', charset: "utf-8")).then((_) {
     logger.fine('upload complete!');
   });
 }

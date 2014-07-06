@@ -5,7 +5,7 @@ class DeleteRequest {
 
   DeleteRequest(this._objects);
 
-  String toString(){
+  String toString() {
     final builder = new xml.XmlBuilder();
     builder.processing('xml', 'version="1.0"');
     builder.element('Delete', nest: () {
