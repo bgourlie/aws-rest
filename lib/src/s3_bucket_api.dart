@@ -13,12 +13,13 @@ class S3BucketApi {
     final payload = new RequestPayload.fromBytes(bytes, contentType);
     final uri = this._getUri(path: objectKey);
     this._awsClient.put(uri, payload).then((HttpClientResponse resp) {
-      if (resp.reasonPhrase.toUpperCase() != 'OK') {
-        completer.completeError(resp);
-        //TODO: deserialize error into model some model
-      } else {
-        completer.complete();
-      }
+      _readResponseAsString(resp).then((responseText) {
+        if (resp.reasonPhrase.toUpperCase() != 'OK') {
+          _handleError(responseText, completer);
+        } else {
+          completer.complete();
+        }
+      });
     });
     return completer.future;
   }
@@ -29,7 +30,7 @@ class S3BucketApi {
     this._awsClient.get(uri).then((HttpClientResponse resp) {
       _readResponseAsString(resp).then((String responseText) {
         if (resp.reasonPhrase.toUpperCase() != 'OK') {
-          completer.completeError(new ErrorResponse.fromXml(responseText));
+          _handleError(responseText, completer);
         } else {
           final results = new ListBucketResult.fromXml(responseText);
           completer.complete(results);
@@ -56,9 +57,7 @@ class S3BucketApi {
     this._awsClient.post(uri, payload).then((HttpClientResponse resp) {
       _readResponseAsString(resp).then((responseText) {
         if (resp.reasonPhrase.toUpperCase() != 'OK') {
-          final err = new ErrorResponse.fromXml(responseText);
-          _logger.warning(err.message);
-          completer.completeError(err);
+          _handleError(responseText, completer);
         } else {
           _logger.fine(responseText);
           final results = new DeleteResults.fromXml(responseText);
@@ -76,5 +75,11 @@ class S3BucketApi {
     final buffer = new StringBuffer();
     resp.transform(UTF8.decoder).listen((String contents) => buffer.write(contents)).onDone(() => completer.complete(buffer.toString()));
     return completer.future;
+  }
+
+  static void _handleError(String responseText, Completer completer) {
+    final err = new ErrorResponse.fromXml(responseText);
+    _logger.warning(err.message);
+    completer.completeError(err);
   }
 }
