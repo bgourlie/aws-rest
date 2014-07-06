@@ -47,7 +47,7 @@ class S3BucketApi {
     }
 
     final completer = new Completer<DeleteResults>();
-    final deleteReq = new DeleteRequest(objects);
+    final deleteReq = new _DeleteRequest(objects);
     final requestXml = deleteReq.toString();
     _logger.finest(requestXml);
     final uri = this._getUri(queryParams: {

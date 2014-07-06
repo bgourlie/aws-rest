@@ -4,20 +4,21 @@ class RequestPayload {
   static final _emptySha256 = _sha256Payload(new List<int>());
   static final _emptyMd5 = _md5Payload(new List<int>());
   final ContentType contentType;
+  final String contentEncoding;
   final List<int> bytes;
   final String sha256;
   final String md5;
 
   bool get isEmpty => this.bytes == null;
 
-  RequestPayload(this.contentType, this.bytes, this.sha256, this.md5);
+  RequestPayload(this.contentType, this.contentEncoding, this.bytes, this.sha256, this.md5);
 
-  factory RequestPayload.fromBytes(List<int> bytes, ContentType contentType) {
-    return new RequestPayload(contentType, bytes, _sha256Payload(bytes), _md5Payload(bytes));
+  factory RequestPayload.fromBytes(List<int> bytes, ContentType contentType, {String contentEncoding: null}) {
+    return new RequestPayload(contentType, contentEncoding, bytes, _sha256Payload(bytes), _md5Payload(bytes));
   }
 
   factory RequestPayload.empty(){
-    return new RequestPayload(null, null, _emptySha256, _emptyMd5);
+    return new RequestPayload(null, null, null, _emptySha256, _emptyMd5);
   }
 
   static String _md5Payload(List<int> payload) {

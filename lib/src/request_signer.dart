@@ -10,6 +10,11 @@ class RequestSigner {
     req.headers.remove('transfer-encoding', 'chunked'); // aws doesn't support this header when precomputing payload hash, dart seems to add it by default
     req.headers.add('x-amz-content-sha256', payload.sha256);
     req.headers.add('content-md5', payload.md5);
+
+    if(payload.contentEncoding != null){
+      req.headers.add('content-encoding', payload.contentEncoding);
+    }
+
     if (!payload.isEmpty) {
       req.headers.contentType = payload.contentType;
       req.headers.contentLength = payload.bytes.length;
