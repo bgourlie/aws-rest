@@ -10,8 +10,9 @@ class S3BucketApi {
 
   Future uploadObjectBytes(String objectKey, List<int> bytes, ContentType contentType) {
     final completer = new Completer();
-    final payload = new RequestPayload.fromBytes(contentType, bytes);
-    this._awsClient.put(this._domain, objectKey, payload).then((HttpClientResponse resp) {
+    final payload = new RequestPayload.fromBytes(bytes, contentType);
+    final uri =  this._getUri(path: objectKey);
+    this._awsClient.put(uri, payload).then((HttpClientResponse resp) {
       if(resp.reasonPhrase.toUpperCase() != 'OK'){
         completer.completeError(resp); //TODO: deserialize error into model some model
       } else {
@@ -23,24 +24,56 @@ class S3BucketApi {
 
   Future<ListBucketResult> listBucket() {
     final completer = new Completer<ListBucketResult>();
-    this._awsClient.get(this._domain, '/').then((HttpClientResponse resp) {
-      if(resp.reasonPhrase.toUpperCase() != 'OK'){
-        completer.completeError(resp); // TODO: deserialize error into model some model
-      } else {
-        final buffer = new StringBuffer();
-        resp.transform(UTF8.decoder).listen((String contents) {
-          buffer.write(contents);
-        }).onDone(() {
-          final xmlText = buffer.toString();
-          final results = new ListBucketResult.fromXml(xmlText);
+    final uri = this._getUri();
+    this._awsClient.get(uri).then((HttpClientResponse resp) {
+      _readResponseAsString(resp).then((String responseText) {
+        if(resp.reasonPhrase.toUpperCase() != 'OK'){
+          completer.completeError(new ErrorResponse.fromXml(responseText));
+        } else {
+          final results = new ListBucketResult.fromXml(responseText);
           completer.complete(results);
-        });
-      }
+        }
+      });
     });
     return completer.future;
   }
 
   Future<DeleteResults> deleteObjects(List<S3Object> objects) {
-    throw 'not implemented';
+    if(objects == null || objects.length == 0) {
+      _logger.warning('No objects were passed to deleteObjects, returning.');
+      return new Future(() => new DeleteResults());
+    }
+
+    final completer = new Completer<DeleteResults>();
+    final deleteReq = new DeleteRequest(objects);
+    final requestXml = deleteReq.toString();
+    _logger.finest(requestXml);
+    final uri = this._getUri(queryParams: {'delete' : ''});
+    final payload = new RequestPayload.fromBytes(UTF8.encode(requestXml), new ContentType('text', 'xml'));
+    this._awsClient.post(uri, payload).then((HttpClientResponse resp) {
+      _readResponseAsString(resp).then((responseText) {
+        if(resp.reasonPhrase.toUpperCase() != 'OK') {
+          final err = new ErrorResponse.fromXml(responseText);
+          _logger.warning(err.message);
+          completer.completeError(err);
+        } else {
+          _logger.fine(responseText);
+          final results = new DeleteResults.fromXml(responseText);
+          completer.complete(results);
+        }
+      });
+    });
+    return completer.future;
+  }
+
+  Uri _getUri({String path, Map<String, String> queryParams})
+      => new Uri(scheme: 'https', host: this._domain,  path: path == null ? '/' : path, queryParameters: queryParams);
+
+  static Future<String> _readResponseAsString(HttpClientResponse resp) {
+    final completer = new Completer<String>();
+    final buffer = new StringBuffer();
+    resp.transform(UTF8.decoder).listen((String contents) => buffer.write(contents))
+        .onDone(() => completer.complete(buffer.toString()));
+    return completer.future;
   }
 }

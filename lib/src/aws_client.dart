@@ -6,19 +6,18 @@ class AwsClient {
 
   AwsClient(this._signer) : this._httpClient = new HttpClient();
 
-  Future<HttpClientResponse> put(String host, String path, RequestPayload payload) => this.sendRequest('put', host, path, payload);
+  Future<HttpClientResponse> put(Uri uri, RequestPayload payload) => this.sendRequest('put', uri, payload);
 
-  Future<HttpClientResponse> get(String host, String path) => this.sendRequest('get', host, path, new RequestPayload.empty());
+  Future<HttpClientResponse> get(Uri uri ) => this.sendRequest('get', uri, new RequestPayload.empty());
 
-  Future<HttpClientResponse> post(String host, String path, RequestPayload payload) => this.sendRequest('post', host, path, payload);
+  Future<HttpClientResponse> post(Uri uri, RequestPayload payload) => this.sendRequest('post', uri, payload);
 
-  Future<HttpClientResponse> delete(String host, String path) => this.sendRequest('delete', host, path, new RequestPayload.empty());
+  Future<HttpClientResponse> delete(Uri uri, String path) => this.sendRequest('delete', uri, new RequestPayload.empty());
 
-  Future<HttpClientResponse> sendRequest(String method, String host, String path, RequestPayload payload) {
+  Future<HttpClientResponse> sendRequest(String method, Uri uri, RequestPayload payload) {
     final completer = new Completer<HttpClientRequest>();
-    final separator = path.startsWith('/') ? '' : '/';
-    _logger.finest('Making ${method.toUpperCase()} request to $host$separator$path');
-    this._httpClient.open(method, host, 80, path).then((HttpClientRequest req) {
+    _logger.finest('Making ${method.toUpperCase()} request to $uri');
+    this._httpClient.openUrl(method, uri).then((HttpClientRequest req) {
       this._signer.signRequest(req, payload);
       if (!payload.isEmpty) {
         req.add(payload.bytes);

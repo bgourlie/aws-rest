@@ -8,7 +8,8 @@ class RequestSigner {
 
   void signRequest(HttpClientRequest req, RequestPayload payload) {
     req.headers.remove('transfer-encoding', 'chunked'); // aws doesn't support this header when precomputing payload hash, dart seems to add it by default
-    req.headers.add('x-amz-content-sha256', payload.hash);
+    req.headers.add('x-amz-content-sha256', payload.sha256);
+    req.headers.add('content-md5', payload.md5);
     if (!payload.isEmpty) {
       req.headers.contentType = payload.contentType;
       req.headers.contentLength = payload.bytes.length;
@@ -23,6 +24,9 @@ class RequestSigner {
     final signature = _getSignature(signingKey, stringToSign);
     final signedHeaders = _generateSignedHeaders(req);
     final authHeader = _generateAuthorizationString(scope, signedHeaders, signature);
+    _logger.finest('CANONICAL REQUEST:\n$canonicalRequest\n');
+    _logger.finest('STRING TO SIGN:\n$stringToSign\n');
+
     req.headers.add('authorization', authHeader);
   }
 
@@ -32,15 +36,22 @@ class RequestSigner {
     final httpMethod = req.method;
 
     // CanonicalURI is the URI-encoded version of the absolute path component of the URI—everything starting with the "/" that follows the domain name and up to the end of the string or to the question mark character ('?') if you have query string parameters.
-    final canonicalUri = req.uri.path;
+    final canonicalUri = req.uri.path.indexOf('?') == -1 ? req.uri.path : req.uri.path.substring(0, req.uri.path.indexOf('?'));
 
     // CanonicalQueryString specifies the URI-encoded query string parameters. You URI-encode name and values individually. You must also sort the parameters in the canonical query string alphabetically by key name. The sorting occurs after encoding. For example, in the URI
-    final canonicalQueryString = req.uri.query;
+    final queryStringParams = new List<String>();
+    req.uri.queryParameters.forEach((String key, String value){
+      queryStringParams.add('${Uri.encodeQueryComponent(key)}=${Uri.encodeQueryComponent(value)}');
+    });
+
+    queryStringParams.sort((str1, str2) => str1.compareTo(str2));
+
+    final canonicalQueryString = queryStringParams.join();
 
     final canonicalHeaders = _generateCanonicalHeaders(req);
     final signedHeaders = _generateSignedHeaders(req);
     // NOTE: the extra newline between canonical headers and signed headers is not documented (is it right?)
-    return '$httpMethod\n$canonicalUri\n$canonicalQueryString\n$canonicalHeaders\n\n$signedHeaders\n${payload.hash}';
+    return '$httpMethod\n$canonicalUri\n$canonicalQueryString\n$canonicalHeaders\n\n$signedHeaders\n${payload.sha256}';
   }
 
   static String _generateCanonicalHeaders(HttpClientRequest req) {

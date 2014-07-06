@@ -9,8 +9,14 @@ class DeleteRequest {
     final builder = new xml.XmlBuilder();
     builder.processing('xml', 'version="1.0"');
     builder.element('Delete', nest: () {
-      this._objects.forEach((obj)
-          => builder.element('Object', nest: () => builder.element('Key', nest: () => builder.text(obj.key))));
+      builder.element('Quiet', nest: () => builder.text('true'));
+      this._objects.forEach((obj) {
+        builder.element('Object', nest: () {
+          builder.element('Key', nest: obj.key);
+        });
       });
+    });
+
+    return builder.build().toXmlString();
   }
 }

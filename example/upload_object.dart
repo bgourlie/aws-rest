@@ -5,7 +5,7 @@ import 'package:logging/logging.dart';
 import 'settings.dart' as settings;
 
 void main() {
-  Logger.root.level = Level.FINEST;
+  Logger.root.level = Level.FINE;
   Logger.root.onRecord.listen((LogRecord r) => print('[${r.loggerName}] ${r.message}'));
   final logger = new Logger('upload_object_example');
   final creds = new AwsCredentials(settings.AWS_ACCESS_KEY_ID, settings.AWS_SECRET_ACCESS_KEY);
@@ -17,6 +17,6 @@ void main() {
   bucketApi.uploadObjectBytes('hello-from-bucket-api2.html',
       UTF8.encode("<html><head></head><body><h1>hello from aws_rest2!</h1></body></html>"),
       new ContentType('text', 'html', charset: "utf-8")).then((_) {
-    logger.finest('upload complete!');
+    logger.fine('upload complete!');
   });
 }

@@ -20,6 +20,7 @@ part 'src/models/owner.dart';
 part 'src/models/delete_request.dart';
 part 'src/models/delete_result.dart';
 part 'src/models/s3_object.dart';
+part 'src/models/error_response.dart';
 
 final _scopeDateFormatter = new DateFormat('yyyyMMdd');
 final _httpDateFormatter = new DateFormat("EEE, dd MMM y HH:mm:ss 'GMT'");
