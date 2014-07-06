@@ -8,9 +8,9 @@ class S3BucketApi {
 
   get _domain => '${_bucketName}.s3.amazonaws.com';
 
-  Future uploadObjectBytes(String objectKey, List<int> bytes, ContentType contentType) {
+  Future uploadObjectBytes(String objectKey, List<int> bytes, ContentType contentType, {String contentEncoding: null}) {
     final completer = new Completer();
-    final payload = new RequestPayload.fromBytes(bytes, contentType);
+    final payload = new RequestPayload.fromBytes(bytes, contentType, contentEncoding: contentEncoding);
     final uri = this._getUri(path: objectKey);
     this._awsClient.put(uri, payload).then((HttpClientResponse resp) {
       _readResponseAsString(resp).then((responseText) {
