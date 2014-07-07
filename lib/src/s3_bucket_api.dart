@@ -5,8 +5,7 @@ class S3BucketApi {
   final String _bucketName;
 
   S3BucketApi(this._bucketName, this._awsClient);
-
-  get _domain => '${_bucketName}.s3.amazonaws.com';
+  static const _domain = 's3.amazonaws.com';
 
   Future uploadObjectBytes(String objectKey, List<int> bytes, ContentType contentType, {String contentEncoding: null}) {
     final completer = new Completer();
@@ -68,7 +67,7 @@ class S3BucketApi {
     return completer.future;
   }
 
-  Uri _getUri({String path, Map<String, String> queryParams}) => new Uri(scheme: 'https', host: this._domain, path: path == null ? '/' : path, queryParameters: queryParams);
+  Uri _getUri({String path, Map<String, String> queryParams}) => new Uri(scheme: 'https', host: _domain, path: path == null ? this._bucketName : '${this._bucketName}/$path', queryParameters: queryParams);
 
   static Future<String> _readResponseAsString(HttpClientResponse resp) {
     final completer = new Completer<String>();
