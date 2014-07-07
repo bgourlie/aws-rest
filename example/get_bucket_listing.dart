@@ -1,5 +1,3 @@
-import 'dart:io';
-import 'dart:convert';
 import 'package:aws_rest/aws_rest.dart';
 import 'package:logging/logging.dart';
 import 'settings.dart' as settings;
