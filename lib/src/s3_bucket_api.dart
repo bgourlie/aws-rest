@@ -74,7 +74,7 @@ class S3BucketApi {
         if (resp.reasonPhrase.toUpperCase() != 'OK') {
           _handleError(responseText, completer);
         } else {
-          _logger.fine(responseText);
+          _logger.finest(responseText);
           final results = new DeleteResults.fromXml(responseText);
           completer.complete(results);
         }
