@@ -7,9 +7,9 @@ class S3BucketApi {
   S3BucketApi(this._bucketName, this._awsClient);
   static const _domain = 's3.amazonaws.com';
 
-  Future uploadObjectBytes(String objectKey, List<int> bytes, ContentType contentType, {String contentEncoding: null}) {
+  Future uploadObjectBytes(String objectKey, List<int> bytes, {Map<String, String> headers}) {
     final completer = new Completer();
-    final payload = new RequestPayload.fromBytes(bytes, contentType, contentEncoding: contentEncoding);
+    final payload = new RequestPayload.fromBytes(bytes, headers: headers);
     final uri = this._getUri(path: objectKey);
     this._awsClient.put(uri, payload).then((HttpClientResponse resp) {
       _readResponseAsString(resp).then((responseText) {
@@ -52,7 +52,7 @@ class S3BucketApi {
     final uri = this._getUri(queryParams: {
         'delete' : ''
     });
-    final payload = new RequestPayload.fromBytes(UTF8.encode(requestXml), new ContentType('text', 'xml'));
+    final payload = new RequestPayload.fromBytes(UTF8.encode(requestXml), headers: { 'content-type' : 'text/xml; charset=utf-8', 'content-encoding' : 'gzip' });
     this._awsClient.post(uri, payload).then((HttpClientResponse resp) {
       _readResponseAsString(resp).then((responseText) {
         if (resp.reasonPhrase.toUpperCase() != 'OK') {

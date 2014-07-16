@@ -11,12 +11,17 @@ class RequestSigner {
     req.headers.add('x-amz-content-sha256', payload.sha256);
     req.headers.add('content-md5', payload.md5);
 
-    if(payload.contentEncoding != null){
-      req.headers.add('content-encoding', payload.contentEncoding);
-    }
-
+    payload.headers.forEach((k,v) {
+      final lowerK = k.toLowerCase();
+      switch(lowerK){
+        case 'content-type':
+          req.headers.contentType = ContentType.parse(v);
+          break;
+        default:
+          req.headers.add(lowerK, v);
+      }
+    });
     if (!payload.isEmpty) {
-      req.headers.contentType = payload.contentType;
       req.headers.contentLength = payload.bytes.length;
     }
 

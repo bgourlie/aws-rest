@@ -3,22 +3,24 @@ part of aws_rest;
 class RequestPayload {
   static final _emptySha256 = _sha256Payload(new List<int>());
   static final _emptyMd5 = _md5Payload(new List<int>());
-  final ContentType contentType;
-  final String contentEncoding;
   final List<int> bytes;
   final String sha256;
   final String md5;
+  final Map<String, String> headers;
 
   bool get isEmpty => this.bytes == null;
 
-  RequestPayload(this.contentType, this.contentEncoding, this.bytes, this.sha256, this.md5);
+  RequestPayload(this.bytes, this.sha256, this.md5, this.headers);
 
-  factory RequestPayload.fromBytes(List<int> bytes, ContentType contentType, {String contentEncoding: null}) {
-    return new RequestPayload(contentType, contentEncoding, bytes, _sha256Payload(bytes), _md5Payload(bytes));
+  factory RequestPayload.fromBytes(List<int> bytes, {Map<String, String> headers}) {
+    if(headers == null){
+      headers = new Map<String, String>();
+    }
+    return new RequestPayload(bytes, _sha256Payload(bytes), _md5Payload(bytes), headers);
   }
 
   factory RequestPayload.empty(){
-    return new RequestPayload(null, null, null, _emptySha256, _emptyMd5);
+    return new RequestPayload(null, _emptySha256, _emptyMd5, new Map<String, String>());
   }
 
   static String _md5Payload(List<int> payload) {
