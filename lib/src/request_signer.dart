@@ -6,10 +6,10 @@ class RequestSigner {
 
   RequestSigner(this._credentials, this._scope);
 
-  void signRequest(HttpClientRequest req, RequestPayload payload) {
+  void signRequest(HttpClientRequest req, AwsRequest payload) {
     req.headers.remove('transfer-encoding', 'chunked'); // aws doesn't support this header when precomputing payload hash, dart seems to add it by default
-    req.headers.add('x-amz-content-sha256', payload.sha256);
-    req.headers.add('content-md5', payload.md5);
+    req.headers.add('x-amz-content-sha256', payload.payloadSha256);
+    req.headers.add('content-md5', payload.payloadMd5);
 
     payload.headers.forEach((k,v) {
       final lowerK = k.toLowerCase();
@@ -40,7 +40,7 @@ class RequestSigner {
     req.headers.add('authorization', authHeader);
   }
 
-  static String _getCanonicalRequest(HttpClientRequest req, RequestPayload payload) {
+  static String _getCanonicalRequest(HttpClientRequest req, AwsRequest payload) {
 
     // HTTPMethod is one of the HTTP methods, for example GET, PUT, HEAD, and DELETE.
     final httpMethod = req.method;
@@ -61,7 +61,7 @@ class RequestSigner {
     final canonicalHeaders = _generateCanonicalHeaders(req);
     final signedHeaders = _generateSignedHeaders(req);
     // NOTE: the extra newline between canonical headers and signed headers is not documented (is it right?)
-    return '$httpMethod\n$canonicalUri\n$canonicalQueryString\n$canonicalHeaders\n\n$signedHeaders\n${payload.sha256}';
+    return '$httpMethod\n$canonicalUri\n$canonicalQueryString\n$canonicalHeaders\n\n$signedHeaders\n${payload.payloadSha256}';
   }
 
   static String _generateCanonicalHeaders(HttpClientRequest req) {

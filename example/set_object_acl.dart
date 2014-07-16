@@ -13,7 +13,7 @@ void main() {
   final awsClient = new AwsClient(signer);
   final bucketApi = new S3BucketApi(settings.S3_BUCKET, awsClient);
 
-  bucketApi.uploadObjectBytes('hello-from-bucket-api.html', UTF8.encode("<html><head></head><body><h1>hello from aws_rest2!</h1></body></html>"), headers: {'content-type' : 'text/html', 'content-encoding' : 'gzip'}).then((_) {
-    logger.fine('upload complete!');
+  bucketApi.setCannedAcl('hello-from-bucket-api2.html', 'public-read').then((_) {
+    logger.fine('set acl complete!');
   });
 }

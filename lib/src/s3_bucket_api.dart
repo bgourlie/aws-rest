@@ -7,11 +7,27 @@ class S3BucketApi {
   S3BucketApi(this._bucketName, this._awsClient);
   static const _domain = 's3.amazonaws.com';
 
+  Future setCannedAcl(String objectKey, String cannedAcl){
+    final completer = new Completer();
+    final uri = this._getUri(path: objectKey, queryParams: {'acl' : ''});
+    final request = new AwsRequest.noPayload(headers: {'x-amz-acl' : cannedAcl});
+    this._awsClient.put(uri, request).then((HttpClientResponse resp){
+      _readResponseAsString(resp).then((responseText) {
+        if (resp.reasonPhrase.toUpperCase() != 'OK') {
+          _handleError(responseText, completer);
+        } else {
+          completer.complete();
+        }
+      });
+    });
+    return completer.future;
+  }
+
   Future uploadObjectBytes(String objectKey, List<int> bytes, {Map<String, String> headers}) {
     final completer = new Completer();
-    final payload = new RequestPayload.fromBytes(bytes, headers: headers);
+    final request = new AwsRequest.fromBytes(bytes, headers: headers);
     final uri = this._getUri(path: objectKey);
-    this._awsClient.put(uri, payload).then((HttpClientResponse resp) {
+    this._awsClient.put(uri, request).then((HttpClientResponse resp) {
       _readResponseAsString(resp).then((responseText) {
         if (resp.reasonPhrase.toUpperCase() != 'OK') {
           _handleError(responseText, completer);
@@ -52,8 +68,8 @@ class S3BucketApi {
     final uri = this._getUri(queryParams: {
         'delete' : ''
     });
-    final payload = new RequestPayload.fromBytes(UTF8.encode(requestXml), headers: { 'content-type' : 'text/xml; charset=utf-8', 'content-encoding' : 'gzip' });
-    this._awsClient.post(uri, payload).then((HttpClientResponse resp) {
+    final request = new AwsRequest.fromBytes(UTF8.encode(requestXml), headers: { 'content-type' : 'text/xml; charset=utf-8', 'content-encoding' : 'gzip' });
+    this._awsClient.post(uri, request).then((HttpClientResponse resp) {
       _readResponseAsString(resp).then((responseText) {
         if (resp.reasonPhrase.toUpperCase() != 'OK') {
           _handleError(responseText, completer);
