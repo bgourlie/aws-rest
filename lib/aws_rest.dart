@@ -16,7 +16,7 @@ part 'src/aws_client.dart';
 part 'src/s3_bucket_api.dart';
 part 'src/models/list_bucket_result.dart';
 part 'src/models/content.dart';
-part 'src/models/owner.dart';
+part 'src/models/user.dart';
 part 'src/models/delete_request.dart';
 part 'src/models/delete_result.dart';
 part 'src/models/s3_object.dart';

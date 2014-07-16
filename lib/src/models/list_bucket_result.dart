@@ -19,7 +19,7 @@ class ListBucketResult {
     final maxKeysElem = rootElem.findElements('MaxKeys').first;
     final isTruncatedElem = rootElem.findElements('IsTruncated').first;
     final contentsElems = rootElem.findElements('Contents');
-    final contents = contentsElems.map((content) => new Content.fromXmlElement(content)).toList();
+    final contents = contentsElems.map((content) => new Content.fromElement(content)).toList();
     final maxKeys = int.parse(maxKeysElem.text);
     final isTruncated = isTruncatedElem.text.toLowerCase() == 'true';
     return new ListBucketResult(nameElem.text, prefixElem.text, markerElem.text, maxKeys, isTruncated, contents);
