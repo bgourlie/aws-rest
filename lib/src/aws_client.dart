@@ -24,10 +24,21 @@ class AwsClient {
       }
       req.close().then((HttpClientResponse resp) {
         _logger.finest('Received response: ${resp.reasonPhrase}');
-        completer.complete(resp);
+        if(resp.statusCode >= 200 && resp.statusCode < 300){
+          completer.complete(resp);
+        } else {
+          _readResponseAsString(resp).then((respText) => completer.completeError(new ErrorResponse.fromXml(respText)));
+        }
       });
     });
 
+    return completer.future;
+  }
+
+  static Future<String> _readResponseAsString(HttpClientResponse resp) {
+    final completer = new Completer<String>();
+    final buffer = new StringBuffer();
+    resp.transform(UTF8.decoder).listen((String contents) => buffer.write(contents)).onDone(() => completer.complete(buffer.toString()));
     return completer.future;
   }
 }

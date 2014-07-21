@@ -13,7 +13,7 @@ void main() {
   final awsClient = new AwsClient(signer);
   final bucketApi = new S3BucketApi(settings.S3_BUCKET, awsClient);
 
-  bucketApi.setCannedAcl('hello-from-bucket-api2.html', 'public-read').then((_) {
+  bucketApi.setCannedAcl('hello-from-bucket-api.html', 'public-read').then((_) {
     logger.fine('set acl complete!');
   });
 }
