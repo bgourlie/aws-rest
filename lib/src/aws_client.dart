@@ -27,7 +27,10 @@ class AwsClient {
         if(resp.statusCode >= 200 && resp.statusCode < 300){
           completer.complete(resp);
         } else {
-          _readResponseAsString(resp).then((respText) => completer.completeError(new ErrorResponse.fromXml(respText)));
+          _readResponseAsString(resp).then((respText) {
+            _logger.finest(respText);
+            completer.completeError(new ErrorResponse.fromXml(respText));
+          });
         }
       });
     });
