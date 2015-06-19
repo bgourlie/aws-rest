@@ -12,11 +12,13 @@ class AwsRequest {
 
   AwsRequest(this.bytes, this.payloadSha256, this.payloadMd5, this.headers);
 
-  factory AwsRequest.fromBytes(List<int> bytes, {Map<String, String> headers : const{}}) {
-    return new AwsRequest(bytes, _sha256Payload(bytes), _md5Payload(bytes), headers);
+  factory AwsRequest.fromBytes(List<int> bytes,
+      {Map<String, String> headers: const {}}) {
+    return new AwsRequest(
+        bytes, _sha256Payload(bytes), _md5Payload(bytes), headers);
   }
 
-  factory AwsRequest.noPayload({Map<String, String> headers : const {}}){
+  factory AwsRequest.noPayload({Map<String, String> headers: const {}}) {
     return new AwsRequest(null, _emptySha256, _emptyMd5, headers);
   }
 

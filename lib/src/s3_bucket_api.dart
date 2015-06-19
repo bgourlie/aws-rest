@@ -7,11 +7,11 @@ class S3BucketApi {
   S3BucketApi(this._bucketName, this._awsClient);
   static const _domain = 's3.amazonaws.com';
 
-  Future setCannedAcl(String objectKey, String cannedAcl){
+  Future setCannedAcl(String objectKey, String cannedAcl) {
     final completer = new Completer();
-    final uri = this._getUri(path: objectKey, queryParams: {'acl' : ''});
-    final request = new AwsRequest.noPayload(headers: {'x-amz-acl' : cannedAcl});
-    this._awsClient.put(uri, request).then((HttpClientResponse resp){
+    final uri = this._getUri(path: objectKey, queryParams: {'acl': ''});
+    final request = new AwsRequest.noPayload(headers: {'x-amz-acl': cannedAcl});
+    this._awsClient.put(uri, request).then((HttpClientResponse resp) {
       _readResponseAsString(resp).then((responseText) {
         completer.complete();
       });
@@ -19,7 +19,8 @@ class S3BucketApi {
     return completer.future;
   }
 
-  Future uploadObjectBytes(String objectKey, List<int> bytes, {Map<String, String> headers}) {
+  Future uploadObjectBytes(String objectKey, List<int> bytes,
+      {Map<String, String> headers}) {
     final completer = new Completer();
     final request = new AwsRequest.fromBytes(bytes, headers: headers);
     final uri = this._getUri(path: objectKey);
@@ -53,10 +54,12 @@ class S3BucketApi {
     final deleteReq = new _DeleteRequest(objects);
     final requestXml = deleteReq.toString();
     _logger.finest(requestXml);
-    final uri = this._getUri(queryParams: {
-        'delete' : ''
+    final uri = this._getUri(queryParams: {'delete': ''});
+    final request = new AwsRequest.fromBytes(UTF8.encode(requestXml),
+        headers: {
+      'content-type': 'text/xml; charset=utf-8',
+      'content-encoding': 'gzip'
     });
-    final request = new AwsRequest.fromBytes(UTF8.encode(requestXml), headers: { 'content-type' : 'text/xml; charset=utf-8', 'content-encoding' : 'gzip' });
     this._awsClient.post(uri, request).then((HttpClientResponse resp) {
       _readResponseAsString(resp).then((responseText) {
         _logger.finest(responseText);
@@ -67,13 +70,19 @@ class S3BucketApi {
     return completer.future;
   }
 
-  Uri _getUri({String path, Map<String, String> queryParams}) => new Uri(scheme: 'https', host: _domain, path: path == null ? this._bucketName : '${this._bucketName}/$path', queryParameters: queryParams);
+  Uri _getUri({String path, Map<String, String> queryParams}) => new Uri(
+      scheme: 'https',
+      host: _domain,
+      path: path == null ? this._bucketName : '${this._bucketName}/$path',
+      queryParameters: queryParams);
 
   static Future<String> _readResponseAsString(HttpClientResponse resp) {
     final completer = new Completer<String>();
     final buffer = new StringBuffer();
-    resp.transform(UTF8.decoder).listen((String contents) => buffer.write(contents)).onDone(() => completer.complete(buffer.toString()));
+    resp
+        .transform(UTF8.decoder)
+        .listen((String contents) => buffer.write(contents))
+        .onDone(() => completer.complete(buffer.toString()));
     return completer.future;
   }
-
 }

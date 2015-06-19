@@ -1,4 +1,5 @@
 part of aws_rest;
+
 // TODO
 class DeleteResults {
   DeleteResults();

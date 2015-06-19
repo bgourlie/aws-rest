@@ -13,7 +13,8 @@ class ErrorResponse {
     final codeElem = errorElem.findElements('Code').first;
     final messageElem = errorElem.findElements('Message').first;
     final requestIdElem = errorElem.findElements('RequestId').first;
-    return new ErrorResponse(codeElem.text, messageElem.text, requestIdElem.text);
+    return new ErrorResponse(
+        codeElem.text, messageElem.text, requestIdElem.text);
   }
 
   String toString() => 'CODE: $code\nMESSAGE: $message\nREQUEST ID: $requestId';

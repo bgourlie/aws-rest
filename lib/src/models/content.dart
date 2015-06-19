@@ -8,9 +8,10 @@ class Content implements S3Object {
   final User owner;
   final String storageClass;
 
-  Content(this.key, this.lastModified, this.etag, this.size, this.owner, this.storageClass);
+  Content(this.key, this.lastModified, this.etag, this.size, this.owner,
+      this.storageClass);
 
-  factory Content.fromElement(xml.XmlElement contentElem){
+  factory Content.fromElement(xml.XmlElement contentElem) {
     final keyElem = contentElem.findElements('Key').first;
     final lastModifiedElem = contentElem.findElements('LastModified').first;
     final etagElem = contentElem.findElements('ETag').first;
@@ -20,6 +21,7 @@ class Content implements S3Object {
     final owner = new User.fromElement(ownerElem);
     final lastModified = DateTime.parse(lastModifiedElem.text);
     final size = int.parse(sizeElem.text);
-    return new Content(keyElem.text, lastModified, etagElem.text, size, owner, storageClassElem.text);
+    return new Content(keyElem.text, lastModified, etagElem.text, size, owner,
+        storageClassElem.text);
   }
 }

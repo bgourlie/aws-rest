@@ -7,13 +7,14 @@ class RequestSigner {
   RequestSigner(this._credentials, this._scope);
 
   void signRequest(HttpClientRequest req, AwsRequest payload) {
-    req.headers.remove('transfer-encoding', 'chunked'); // aws doesn't support this header when precomputing payload hash, dart seems to add it by default
+    req.headers.remove('transfer-encoding',
+        'chunked'); // aws doesn't support this header when precomputing payload hash, dart seems to add it by default
     req.headers.add('x-amz-content-sha256', payload.payloadSha256);
     req.headers.add('content-md5', payload.payloadMd5);
 
-    payload.headers.forEach((k,v) {
+    payload.headers.forEach((k, v) {
       final lowerK = k.toLowerCase();
-      switch(lowerK){
+      switch (lowerK) {
         case 'content-type':
           req.headers.contentType = ContentType.parse(v);
           break;
@@ -29,29 +30,35 @@ class RequestSigner {
     req.headers.date = reqDate;
     final canonicalRequest = _getCanonicalRequest(req, payload);
     final scope = this._scope.generateScopeString(req);
-    final stringToSign = _generateStringToSign(canonicalRequest, scope, reqDate);
+    final stringToSign =
+        _generateStringToSign(canonicalRequest, scope, reqDate);
     final signingKey = _generateSigningKey();
     final signature = _getSignature(signingKey, stringToSign);
     final signedHeaders = _generateSignedHeaders(req);
-    final authHeader = _generateAuthorizationString(scope, signedHeaders, signature);
+    final authHeader =
+        _generateAuthorizationString(scope, signedHeaders, signature);
     _logger.finest('CANONICAL REQUEST:\n$canonicalRequest\n');
     _logger.finest('STRING TO SIGN:\n$stringToSign\n');
 
     req.headers.add('authorization', authHeader);
   }
 
-  static String _getCanonicalRequest(HttpClientRequest req, AwsRequest payload) {
+  static String _getCanonicalRequest(
+      HttpClientRequest req, AwsRequest payload) {
 
     // HTTPMethod is one of the HTTP methods, for example GET, PUT, HEAD, and DELETE.
     final httpMethod = req.method;
 
     // CanonicalURI is the URI-encoded version of the absolute path component of the URI—everything starting with the "/" that follows the domain name and up to the end of the string or to the question mark character ('?') if you have query string parameters.
-    final canonicalUri = req.uri.path.indexOf('?') == -1 ? req.uri.path : req.uri.path.substring(0, req.uri.path.indexOf('?'));
+    final canonicalUri = req.uri.path.indexOf('?') == -1
+        ? req.uri.path
+        : req.uri.path.substring(0, req.uri.path.indexOf('?'));
 
     // CanonicalQueryString specifies the URI-encoded query string parameters. You URI-encode name and values individually. You must also sort the parameters in the canonical query string alphabetically by key name. The sorting occurs after encoding. For example, in the URI
     final queryStringParams = new List<String>();
     req.uri.queryParameters.forEach((String key, String value) {
-      queryStringParams.add('${Uri.encodeQueryComponent(key)}=${Uri.encodeQueryComponent(value)}');
+      queryStringParams.add(
+          '${Uri.encodeQueryComponent(key)}=${Uri.encodeQueryComponent(value)}');
     });
 
     queryStringParams.sort((str1, str2) => str1.compareTo(str2));
@@ -67,7 +74,8 @@ class RequestSigner {
   static String _generateCanonicalHeaders(HttpClientRequest req) {
     // CanonicalHeaders is a list of request headers with their values. Individual header name and value pairs are separated by the newline character ("\n"). Header names must be in lowercase. You must sort the header names alphabetically to construct the string, as shown in the following example:
     final headers = new List<String>();
-    req.headers.forEach((header, values) => headers.add("${header.toLowerCase()}:${values.join(';').trim()}"));
+    req.headers.forEach((header, values) =>
+        headers.add("${header.toLowerCase()}:${values.join(';').trim()}"));
     headers.sort((str1, str2) => str1.compareTo(str2));
     return headers.join('\n');
   }
@@ -79,17 +87,22 @@ class RequestSigner {
     return headers.join(';');
   }
 
-  static String _generateStringToSign(String canonicalRequest, String scope, DateTime reqDate) {
+  static String _generateStringToSign(
+      String canonicalRequest, String scope, DateTime reqDate) {
     final iso8601Date = _httpDateFormatter.format(reqDate);
     final hashedRequest = _getStringHash(canonicalRequest);
     return 'AWS4-HMAC-SHA256\n$iso8601Date\n$scope\n$hashedRequest';
   }
 
   List<int> _generateSigningKey() {
-    final dateKey = _generateHmac256Hash(UTF8.encode('AWS4${this._credentials.secretAccessKey}'), _scopeDateFormatter.format(new DateTime.now().toUtc()));
+    final dateKey = _generateHmac256Hash(
+        UTF8.encode('AWS4${this._credentials.secretAccessKey}'),
+        _scopeDateFormatter.format(new DateTime.now().toUtc()));
     final dateRegionKey = _generateHmac256Hash(dateKey, this._scope._region);
-    final dateRegionServiceKey = _generateHmac256Hash(dateRegionKey, this._scope._service);
-    final signingKey = _generateHmac256Hash(dateRegionServiceKey, "aws4_request");
+    final dateRegionServiceKey =
+        _generateHmac256Hash(dateRegionKey, this._scope._service);
+    final signingKey =
+        _generateHmac256Hash(dateRegionServiceKey, "aws4_request");
     return signingKey;
   }
 
@@ -98,13 +111,15 @@ class RequestSigner {
     return CryptoUtils.bytesToHex(signature);
   }
 
-  static List<int> _generateHmac256Hash(List<int> signingKey, String valueToHash) {
+  static List<int> _generateHmac256Hash(
+      List<int> signingKey, String valueToHash) {
     final hasher = new HMAC(new SHA256(), signingKey);
     hasher.add(UTF8.encode(valueToHash));
     return hasher.close();
   }
 
-  String _generateAuthorizationString(String scope, String signedHeaders, String signature) {
+  String _generateAuthorizationString(
+      String scope, String signedHeaders, String signature) {
     return 'AWS4-HMAC-SHA256 Credential=${this._credentials.accessKeyId}/$scope,SignedHeaders=$signedHeaders,Signature=$signature';
   }
 
